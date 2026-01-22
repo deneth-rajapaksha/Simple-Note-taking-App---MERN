@@ -1,0 +1,45 @@
+import { PenSquareIcon, Trash2Icon } from 'lucide-react'
+import React from 'react'
+import { Link } from 'react-router'
+import { formatDate } from '../lib/util.js';
+import toast from 'react-hot-toast';
+import api from '../lib/axios.js';
+
+
+const NoteCard = ({ note, setNotes }) => {
+
+  const handleDelete = async (e, id) => {
+    e.preventDefault(); // get rid of the navigation behaviour
+
+    if (!window.confirm("Are you sure you want to delete this note?")) return;
+
+    try {
+      await api.delete(`/notes/${id}`);
+      setNotes((prev) => prev.filter((note) => note._id !== id)); // get rid of the deleted one
+      toast.success("Note deleted successfully");
+    } catch (error) {
+      console.log("Error in handleDelete", error);
+      toast.error("Failed to delete note");
+    }
+  };
+
+  return (
+    <Link to ={`/note/${note._id}`}>
+      <div className='border border-green-500 rounded-lg p-4 shadow hover:shadow-green-500 transition-shadow duration-300'>
+        <div className='card-body'>
+          <h3 className='card-title text-green-500'>{note.title}</h3>
+            <p className='text-base-content/70 line-clamp-3'>{note.content}...</p>
+            <div className='card-actions justify-between items-center'>
+                <span className='text-base-content/60 text-sm'>{formatDate(new Date(note.createdAt))}</span>
+                <div className='flex items-center gap-1'>
+                    <PenSquareIcon className='size-4'/>
+                    <button className='btn btn-ghost btn-xs text-error' onClick={(e) => handleDelete(e, note._id)}><Trash2Icon className='size-4'/></button>
+                </div>
+            </div>
+        </div>
+      </div>
+    </Link>
+  )
+}
+
+export default NoteCard
